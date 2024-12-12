@@ -1,0 +1,58 @@
+services:
+  web:
+    build: 
+      context: ./apache/
+      dockerfile: Dockerfile
+    container_name: webserver
+    ports:
+      - "80:80"
+    volumes:
+      - ./webfolder/:/var/www/html
+    networks:
+      monitoring_network:
+        ipv4_address: 172.20.0.4
+        
+
+  dbserver:
+    build: 
+      context: ./mariadb/
+      dockerfile: Dockerfile
+    container_name: dbserver
+    volumes:
+      - dbdata:/var/lib/mysql 
+      - ./mariadb/etc/nagios/:/etc/nagios/
+    environment:
+      - MYSQL_ROOT_PASSWORD=pass-wordpress
+      - MYSQL_DATABASE=db_wordpress 
+      - MYSQL_USER=usr_wordpress 
+      - MYSQL_PASSWORD=pass_wordpress
+    expose:
+      - 5666
+    networks:
+      monitoring_network:
+        ipv4_address: 172.20.0.3
+
+  nagios:
+    image: jasonrivers/nagios
+    container_name: nagios_container
+    volumes:
+      - ./nagios/etc/:/opt/nagios/etc/ 
+      - ./nagios/var/:/opt/nagios/var/ 
+    ports:
+      - "8080:80"
+      - "5666:5666"
+    networks:
+      monitoring_network:
+        ipv4_address: 172.20.0.2
+networks:
+  monitoring_network:
+    driver: bridge
+    external: true
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1 
+
+
+volumes:
+  dbdata:
