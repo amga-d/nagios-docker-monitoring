@@ -1,6 +1,6 @@
 services:
   web:
-    image: ${Docker_USER}/nagios-web:latest
+    image: ${DOCKER_USER}/nagios-web:latest
     build: 
       context: ./apache/
       dockerfile: Dockerfile
@@ -15,7 +15,7 @@ services:
         
 
   dbserver:
-    image: ${Docker_USER}/nagios-db:latest
+    image: ${DOCKER_USER}/nagios-db:latest
     build: 
       context: ./mariadb/
       dockerfile: Dockerfile
